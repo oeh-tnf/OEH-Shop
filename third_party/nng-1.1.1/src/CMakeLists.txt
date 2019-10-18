@@ -248,30 +248,6 @@ target_link_libraries (${PROJECT_NAME} PRIVATE ${NNG_LIBS})
 
 target_include_directories (${PROJECT_NAME} INTERFACE $<INSTALL_INTERFACE:include> $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
-install (TARGETS ${PROJECT_NAME}
-    EXPORT ${PROJECT_NAME}-target
-    FRAMEWORK DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT Library
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT Library
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT Library
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT Tools
-)
-
-install (EXPORT ${PROJECT_NAME}-target
-    FILE ${PROJECT_NAME}-targets.cmake
-    NAMESPACE nng::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-    COMPONENT Library
-)
-
-# Install the header files.  It would be much better if we could use
-# the PUBLIC_HEADER facility, but it stupidly flattens the directories.
-foreach (f ${NNG_HDRS})
-	get_filename_component(d ${f} DIRECTORY)
-	install(FILES ${f}
-		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/nng/${d}
-		COMPONENT Headers)
-endforeach()
-
 # Promote settings to parent
 set(NNG_LIBS ${NNG_LIBS} PARENT_SCOPE)
 set(NNG_PKGS ${NNG_PKGS} PARENT_SCOPE)
@@ -299,7 +275,3 @@ write_basic_package_version_file("${version_config}"
 configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/${PROJECT_NAME}-config.cmake.in "${project_config}"
     INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
     PATH_VARS INCLUDE_INSTALL_DIRS)
-
-install(FILES "${project_config}" "${version_config}"
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
-    COMPONENT Library)

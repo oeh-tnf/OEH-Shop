@@ -35,7 +35,6 @@ include (CheckLibraryExists)
 include (CheckCSourceCompiles)
 include (CheckCCompilerFlag)
 include (CMakeDependentOption)
-include (GNUInstallDirs)
 include (TestBigEndian)
 include (FindUnixCommands)
 
@@ -374,12 +373,6 @@ if (NNG_TESTS)
 	add_subdirectory (tests)
     add_subdirectory (perf)
 endif()
-
-#  Build the tools
-
-if (NNG_ENABLE_NNGCAT)
-    add_subdirectory (tools/nngcat)
-endif ()
 
 add_subdirectory (docs/man)
 

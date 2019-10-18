@@ -1,0 +1,3 @@
+set(OEHSHOP_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/message.cpp
+    PARENT_SCOPE)

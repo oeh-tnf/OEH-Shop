@@ -4,6 +4,8 @@ project(OEH_SHOP_OS)
 # Add Dependencies
 add_subdirectory(third_party)
 
+add_subdirectory(shared)
+
 # Printing Station only works on Linux
 if(NOT WIN32)
     add_subdirectory(printing_station)

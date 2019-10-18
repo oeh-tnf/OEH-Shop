@@ -65,13 +65,6 @@ configure_file(
  )
 
 #######################################################################
-# build examples - these have to be built after fluid is built/imported
-#######################################################################
-if(OPTION_BUILD_EXAMPLES)
-   add_subdirectory(test)
-endif(OPTION_BUILD_EXAMPLES)
-
-#######################################################################
 # installation
 #######################################################################
-include(CMake/install.cmake)
+#include(CMake/install.cmake)

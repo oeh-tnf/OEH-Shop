@@ -49,30 +49,3 @@ else()
 endif(APPLE AND NOT OPTION_APPLE_X11)
 
 target_link_libraries(fluid fltk fltk_images fltk_forms)
-
-# install fluid
-
-install(TARGETS fluid
-    EXPORT FLTK-Targets
-    DESTINATION ${FLTK_BINDIR}
-)
-
-# install desktop files
-
-if(UNIX)
-    install(FILES fluid.desktop
-        DESTINATION ${FLTK_DATADIR}/applications
-        )
-    # Install mime-type file. x-fluid.desktop method is deprecated.
-    install(FILES fluid.xml
-        DESTINATION ${FLTK_DATADIR}/mime/packages
-        )
-
-    # Install desktop icons.
-    foreach(icon 32 48 64 128)
-        install(FILES icons/fluid-${icon}.png
-            DESTINATION ${FLTK_DATADIR}/icons/hicolor/${icon}x${icon}/apps
-            RENAME fluid.png
-        )
-    endforeach()
-endif(UNIX)
