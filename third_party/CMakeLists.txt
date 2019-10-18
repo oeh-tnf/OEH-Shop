@@ -11,3 +11,5 @@ set(CMAKE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/nng-1.1.1)
 add_subdirectory(nng-1.1.1)
 
 add_subdirectory(pugixml-1.10)
+
+set_property(TARGET pugixml PROPERTY POSITION_INDEPENDENT_CODE ON)

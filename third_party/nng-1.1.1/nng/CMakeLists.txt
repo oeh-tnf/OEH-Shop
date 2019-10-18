@@ -187,7 +187,7 @@ add_subdirectory(supplemental/tls)
 add_subdirectory(supplemental/util)
 add_subdirectory(supplemental/websocket)
 
-include_directories(AFTER SYSTEM ${PROJECT_SOURCE_DIR}/src ${NNG_INCS})
+include_directories(AFTER SYSTEM ${PROJECT_SOURCE_DIR}/nng ${NNG_INCS})
 
 add_definitions(${NNG_DEFS})
 

@@ -17,6 +17,8 @@ extern "C"
 #include <filesystem>
 #include <iostream>
 
+#include <oehshop/finder.hpp>
+
 const char* SKELETON_DIR = "/home/print";
 const char* USER_DIR = "/home/user";
 
@@ -55,8 +57,6 @@ pam_sm_authenticate(pam_handle_t* handle,
 {
   int pam_code;
 
-  return PAM_SUCCESS;
-
   const char* username = NULL;
 
   /* Asking the application for an  username */
@@ -67,6 +67,17 @@ pam_sm_authenticate(pam_handle_t* handle,
   }
 
   std::cout << "PAM user: " << username << std::endl;
+
+  // Create finder to find desk.
+  oehshop::Finder finder;
+  auto [deskURL, success] = finder.findDesk();
+
+  if(success) {
+    std::cerr << "Found Desk: " << deskURL << std::endl;
+  } else {
+    std::cout << "Could not find desk! Status: " << deskURL << std::endl;
+    return PAM_PERM_DENIED;
+  }
 
   return PAM_SUCCESS;
 }

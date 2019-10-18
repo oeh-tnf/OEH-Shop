@@ -1,4 +1,4 @@
 #%PAM-1.0
 
-auth       sufficient   printingstation.so
-session    sufficient   printingstation.so
+auth       sufficient   libprintingstation.so
+session    sufficient   libprintingstation.so

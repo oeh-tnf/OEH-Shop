@@ -172,8 +172,8 @@ if (NNG_ENABLE_COVERAGE)
     endif()
 endif()
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${NNG_WARN_FLAGS} ${NNG_COVERAGE_FLAGS} ${NNG_SANITIZER_FLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${NNG_WARN_FLAGS} ${NNG_COVERAGE_FLAGS} ${NNG_SANITIZER_FLAGS}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${NNG_WARN_FLAGS} ${NNG_COVERAGE_FLAGS} ${NNG_SANITIZER_FLAGS} -fPIC")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${NNG_WARN_FLAGS} ${NNG_COVERAGE_FLAGS} ${NNG_SANITIZER_FLAGS} -fPIC")
 
 TEST_BIG_ENDIAN(NNG_BIG_ENDIAN)
 if (NNG_BIG_ENDIAN)
@@ -360,19 +360,12 @@ if (NOT(BUILD_SHARED_LIBS))
     message(STATUS "Building static libs")
 endif()
 
-add_subdirectory (src)
+add_subdirectory (nng)
 
 foreach(_PKG IN ITEMS ${NNG_PKGS})
 	find_package(${_PKG} REQUIRED)
 endforeach ()
 add_definitions(${NNG_DEFS})
-
-if (NNG_TESTS)
-	enable_testing()
-	set(all_tests, "")
-	add_subdirectory (tests)
-    add_subdirectory (perf)
-endif()
 
 add_subdirectory (docs/man)
 
