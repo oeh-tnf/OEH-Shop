@@ -6,6 +6,7 @@
 #include <FL/fl_ask.H>
 
 #include <oehshop/finder.hpp>
+#include <oehshop/user_db.hpp>
 
 bool running = true;
 
@@ -40,11 +41,14 @@ main(int argc, char* argv[])
 {
   std::cout << "Starting Print Desk" << std::endl;
 
-  if(argc != 2) {
-    std::cout << "Argument required! Reachable Address of this computer."
-              << std::endl;
+  if(argc != 3) {
+    std::cout
+      << "2 Arguments required: Reachable Address of this computer and DB path."
+      << std::endl;
     return 1;
   }
+
+  oehshop::UserDB userDB(argv[2]);
 
   Fl_Window win(300, 200, "Testing");
   win.begin();
@@ -61,5 +65,6 @@ main(int argc, char* argv[])
   while(running) {
     Fl::wait(0.01);
     finder.provideDesk(argv[1]);
+    userDB.serve();
   }
 }

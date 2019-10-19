@@ -2,4 +2,6 @@ set(OEHSHOP_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/message.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/finder.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/printer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/user.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/user_db.cpp
     PARENT_SCOPE)

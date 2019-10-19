@@ -19,6 +19,7 @@ extern "C"
 
 #include <oehshop/finder.hpp>
 #include <oehshop/printer.hpp>
+#include <oehshop/user.hpp>
 
 const char* SKELETON_DIR = "/home/print";
 const char* USER_DIR = "/home/user";
@@ -80,6 +81,15 @@ pam_sm_authenticate(pam_handle_t* handle,
     std::cerr << "Found Desk: " << deskURL << std::endl;
   } else {
     std::cout << "Could not find desk! Status: " << deskURL << std::endl;
+    return PAM_PERM_DENIED;
+  }
+
+  oehshop::User user(username);
+  bool allowedToLogIn = user.allowedToLogIn(deskURL);
+  if(allowedToLogIn) {
+    std::cout << "User is allowed to log in!" << std::endl;
+  } else {
+    std::cerr << "User is NOT allowed to log in!" << std::endl;
     return PAM_PERM_DENIED;
   }
 
