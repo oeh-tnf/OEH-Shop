@@ -40,6 +40,12 @@ main(int argc, char* argv[])
 {
   std::cout << "Starting Print Desk" << std::endl;
 
+  if(argc != 2) {
+    std::cout << "Argument required! Reachable Address of this computer."
+              << std::endl;
+    return 1;
+  }
+
   Fl_Window win(300, 200, "Testing");
   win.begin();
   Fl_Button but(10, 150, 70, 30, "Click me");
@@ -50,10 +56,10 @@ main(int argc, char* argv[])
   win.callback(window_cb);
 
   oehshop::Finder finder;
-  finder.provideDesk();
+  finder.provideDesk(argv[1]);
 
   while(running) {
     Fl::wait(0.01);
-    finder.provideDesk();
+    finder.provideDesk(argv[1]);
   }
 }

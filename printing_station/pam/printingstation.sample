@@ -1,0 +1,4 @@
+#%PAM-1.0
+
+auth       sufficient   libprintingstation.so
+session    sufficient   libprintingstation.so https://10.78.129.11/counters/usage.php

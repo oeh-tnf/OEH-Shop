@@ -13,10 +13,10 @@ class Finder
 
   std::pair<std::string, bool> findDesk();
 
-  void provideDesk();
+  void provideDesk(const char* address);
 
   private:
   std::string analyzeSurveyResponse(const char* buf);
-  std::string buildDeskAnswer(nng_socket* sock);
+  std::string buildDeskAnswer(const char *address);
 };
 }

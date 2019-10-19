@@ -18,9 +18,13 @@ extern "C"
 #include <iostream>
 
 #include <oehshop/finder.hpp>
+#include <oehshop/printer.hpp>
 
 const char* SKELETON_DIR = "/home/print";
 const char* USER_DIR = "/home/user";
+
+const char* printerXMLBefore = "/home/print/printer-status-before.xml";
+const char* printerXMLAfter = "/home/print/printer-status-after.xml";
 
 extern "C" int
 pam_sm_authenticate(pam_handle_t* handle,
@@ -121,6 +125,17 @@ pam_sm_setcred(pam_handle_t* pamh, int flags, int argc, const char** argv)
 PAM_EXTERN int
 pam_sm_open_session(pam_handle_t* pamh, int flags, int argc, const char** argv)
 {
+  if(argc != 1) {
+    std::cerr << "Require parameter: URL of printer counter page. Like "
+                 "https://10.78.129.11/counters/usage.php"
+              << std::endl;
+    return PAM_PERM_DENIED;
+  }
+
+  std::string printerPage = argv[0];
+
+  oehshop::Printer::downloadPage(printerPage, printerXMLBefore);
+
   // Copy user skeleton and init session.
   std::error_code e;
 
@@ -149,7 +164,6 @@ PAM_EXTERN int
 pam_sm_close_session(pam_handle_t* pamh, int flags, int argc, const char** argv)
 {
   // Get usage data, send to master and delete session.
-
   std::error_code e;
   std::filesystem::remove_all(USER_DIR, e);
 
@@ -157,6 +171,11 @@ pam_sm_close_session(pam_handle_t* pamh, int flags, int argc, const char** argv)
     std::cerr << "Could not remove dir " << USER_DIR
               << "! Error: " << e.message() << std::endl;
   }
+
+  std::string printerPage = argv[0];
+  oehshop::Printer::downloadPage(printerPage, printerXMLAfter);
+
+  oehshop::Printer printer(printerXMLBefore, printerXMLAfter);
 
   return PAM_SUCCESS;
 }

@@ -15,5 +15,5 @@ install(
     LIBRARY DESTINATION /usr/lib/security)
 
 install(
-    FILES printingstation
+    FILES printingstation.sample
     DESTINATION /etc/pam.d/)
