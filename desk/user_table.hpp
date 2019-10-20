@@ -68,7 +68,7 @@ class UserTable
 
   int getCostsInCents(int bwPages, int clPages)
   {
-    return bwPages * 2 + clPages * 20;
+    return bwPages * 6 + clPages * 20;
   };
   std::string getCostsString(int bwPages, int clPages)
   {
