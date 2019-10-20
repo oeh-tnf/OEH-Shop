@@ -60,6 +60,7 @@ main(int argc, char* argv[])
 
   Fl_Input userInput(0, 0, 800, 50, "User Input");
   userInput.textsize(50);
+  userInput.take_focus();
   userInput.callback(
     [](Fl_Widget* w, void* p) {
       Fl_Input* input = static_cast<Fl_Input*>(w);

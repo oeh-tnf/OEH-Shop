@@ -241,6 +241,8 @@ UserTable::startPayment(const std::string& username)
       userDB->removeUserFromDB(user->username);
     },
     static_cast<void*>(u));
+  payedButton->take_focus();
+  payedButton->shortcut(FL_Enter);
 
   u->paymentWindow->end();
   u->paymentWindow->show();
