@@ -25,6 +25,8 @@ class Printer
 
   PrinterStats parsePrinterXML(const std::string& parse);
 
+  PrinterStats getDiff() { return m_diffStats; };
+
   private:
   PrinterStats m_oldStats;
   PrinterStats m_newStats;

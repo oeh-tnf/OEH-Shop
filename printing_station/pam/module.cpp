@@ -187,6 +187,28 @@ pam_sm_close_session(pam_handle_t* pamh, int flags, int argc, const char** argv)
 
   oehshop::Printer printer(printerXMLBefore, printerXMLAfter);
 
+  oehshop::Finder finder;
+  auto [deskURL, success] = finder.findDesk();
+
+  if(success) {
+    std::cerr << "Found Desk: " << deskURL << std::endl;
+  } else {
+    std::cout << "Could not find desk! Status: " << deskURL << std::endl;
+    return PAM_SUCCESS;
+  }
+
+  const char* username = NULL;
+
+  /* Asking the application for an  username */
+  int pam_code = pam_get_user(pamh, &username, "USERNAME: ");
+  if(pam_code != PAM_SUCCESS) {
+    fprintf(stderr, "Can't get username");
+    return PAM_SUCCESS;
+  }
+
+  oehshop::User user(username);
+  user.logout(deskURL, printer.getDiff());
+
   return PAM_SUCCESS;
 }
 

@@ -2,8 +2,6 @@
 
 #include <string>
 
-typedef struct nng_socket_s nng_socket;
-
 namespace oehshop {
 class Finder
 {
