@@ -350,15 +350,8 @@ nng_check_sym (strnlen string.h NNG_HAVE_STRNLEN)
 nng_check_sym (strcasecmp string.h NNG_HAVE_STRCASECMP)
 nng_check_sym (strncasecmp string.h NNG_HAVE_STRNCASECMP)
 
-# Set a static symbol.  We do this for testing, so that tests can
-# be skipped if they would rely on symbols that might not be exported.
-# For example, idhash depends on private symbols, so don't test it
-# when using a shared library on Windows because the symbols won't
-# resolve.
-if (NOT(BUILD_SHARED_LIBS))
-    set (NNG_STATIC_LIB ON)
-    message(STATUS "Building static libs")
-endif()
+set (NNG_STATIC_LIB ON)
+message(STATUS "Building static libs")
 
 add_subdirectory (nng)
 

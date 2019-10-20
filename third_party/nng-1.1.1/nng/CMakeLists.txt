@@ -215,20 +215,9 @@ endforeach ()
 
 
 # Library
-add_library (${PROJECT_NAME} ${NNG_SRCS})
+add_library (${PROJECT_NAME} STATIC ${NNG_SRCS})
 
-# When building shared libraries we prefer to suppress default symbol
-# visibility, so that only the symbols that should be exposed in the
-# resulting library are.  This is the default with Windows.
-if (BUILD_SHARED_LIBS)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE -DNNG_SHARED_LIB)
-    if (NNG_HIDDEN_VISIBILITY)
-        target_compile_definitions(${PROJECT_NAME} PRIVATE -DNNG_HIDDEN_VISIBILITY)
-        set_target_properties(${PROJECT_NAME} PROPERTIES C_VISIBILITY_PRESET hidden)
-    endif()
-else()
-    target_compile_definitions(${PROJECT_NAME} PUBLIC -DNNG_STATIC_LIB)
-endif()
+target_compile_definitions(${PROJECT_NAME} PUBLIC -DNNG_STATIC_LIB)
 
 set_target_properties (${PROJECT_NAME}
 	PROPERTIES SOVERSION ${NNG_ABI_SOVERSION} VERSION "${NNG_ABI_VERSION}")

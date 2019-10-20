@@ -12,6 +12,6 @@ add_subdirectory(nng-1.1.1)
 
 add_subdirectory(pugixml-1.10)
 
-set_property(TARGET pugixml PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_property(TARGET pugixml-static PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 add_subdirectory(SQLiteCpp-2.4.0)

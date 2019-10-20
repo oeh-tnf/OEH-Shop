@@ -7,7 +7,6 @@
 #include <FL/Fl_Window.H>
 #include <FL/fl_ask.H>
 
-#include <oehshop/finder.hpp>
 #include <oehshop/user_db.hpp>
 
 #include "user_table.hpp"
@@ -77,12 +76,9 @@ main(int argc, char* argv[])
   win.callback(window_cb);
   win.resizable(userTable);
 
-  oehshop::Finder finder;
-  finder.provideDesk(argv[1]);
 
   while(running) {
     Fl::wait(0.01);
-    finder.provideDesk(argv[1]);
     userDB.serve();
   }
 }

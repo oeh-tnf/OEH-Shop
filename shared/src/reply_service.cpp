@@ -54,8 +54,8 @@ ReplyService::fatal(const char* location, int code)
 }
 
 ReplyService::ReplyService(int port, ProcessingFunc func)
-  : m_func(func)
-  , m_sock(std::make_unique<nng_socket>())
+  : m_sock(std::make_unique<nng_socket>())
+  , m_func(func)
 {
   int rv;
   if((rv = nng_rep0_open(m_sock.get())) != 0) {

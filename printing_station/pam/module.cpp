@@ -17,7 +17,6 @@ extern "C"
 #include <filesystem>
 #include <iostream>
 
-#include <oehshop/finder.hpp>
 #include <oehshop/printer.hpp>
 #include <oehshop/user.hpp>
 
@@ -60,6 +59,15 @@ pam_sm_authenticate(pam_handle_t* handle,
                     int argc,
                     const char** argv)
 {
+  if(argc != 1) {
+    std::cerr << "Require parameter: Address of desk. Like "
+                 "https://10.78.129.11/counters/usage.php"
+              << std::endl;
+    return PAM_PERM_DENIED;
+  }
+
+  std::string deskURL = argv[0];
+
   int pam_code;
 
   const char* username = NULL;
@@ -72,17 +80,6 @@ pam_sm_authenticate(pam_handle_t* handle,
   }
 
   std::cout << "PAM user: " << username << std::endl;
-
-  // Create finder to find desk.
-  oehshop::Finder finder;
-  auto [deskURL, success] = finder.findDesk();
-
-  if(success) {
-    std::cerr << "Found Desk: " << deskURL << std::endl;
-  } else {
-    std::cout << "Could not find desk! Status: " << deskURL << std::endl;
-    return PAM_PERM_DENIED;
-  }
 
   oehshop::User user(username);
   bool allowedToLogIn = user.allowedToLogIn(deskURL);
@@ -135,14 +132,15 @@ pam_sm_setcred(pam_handle_t* pamh, int flags, int argc, const char** argv)
 PAM_EXTERN int
 pam_sm_open_session(pam_handle_t* pamh, int flags, int argc, const char** argv)
 {
-  if(argc != 1) {
-    std::cerr << "Require parameter: URL of printer counter page. Like "
+  if(argc != 2) {
+    std::cerr << "Require parameters: URL of printer counter page and address of desk. Like "
                  "https://10.78.129.11/counters/usage.php"
               << std::endl;
     return PAM_PERM_DENIED;
   }
 
   std::string printerPage = argv[0];
+  std::string deskURL  = argv[1];
 
   oehshop::Printer::downloadPage(printerPage, printerXMLBefore);
 
@@ -183,19 +181,10 @@ pam_sm_close_session(pam_handle_t* pamh, int flags, int argc, const char** argv)
   }
 
   std::string printerPage = argv[0];
+  std::string deskURL  = argv[1];
   oehshop::Printer::downloadPage(printerPage, printerXMLAfter);
 
   oehshop::Printer printer(printerXMLBefore, printerXMLAfter);
-
-  oehshop::Finder finder;
-  auto [deskURL, success] = finder.findDesk();
-
-  if(success) {
-    std::cerr << "Found Desk: " << deskURL << std::endl;
-  } else {
-    std::cout << "Could not find desk! Status: " << deskURL << std::endl;
-    return PAM_SUCCESS;
-  }
 
   const char* username = NULL;
 

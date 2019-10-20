@@ -34,7 +34,8 @@ macro(FL_ADD_LIBRARY LIBNAME LIBTYPE LIBFILES)
 	set (LIBRARY_NAME_DEBUG "${LIBRARY_NAME}")
     endif (MSVC)
 
-    add_library(${LIBRARY_NAME} ${LIBTYPE} ${LIBFILES})
+    #add_library(${LIBRARY_NAME} ${LIBTYPE} ${LIBFILES})
+    add_library(${LIBRARY_NAME} STATIC ${LIBFILES})
 
     set_target_properties(${LIBRARY_NAME}
         PROPERTIES

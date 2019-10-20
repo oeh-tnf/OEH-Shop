@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.0)
 
 project(pugixml VERSION 1.10)
 
-option(BUILD_SHARED_AND_STATIC_LIBS "Build both shared and static libraries" OFF)
-option(BUILD_SHARED_LIBS "Build shared instead of static library" OFF)
 option(BUILD_TESTS "Build tests" OFF)
 option(USE_VERSIONED_LIBDIR "Use a private subdirectory to install the headers and libs" OFF)
 option(USE_POSTFIX "Use separate postfix for each configuration to make sure you can install multiple build outputs" OFF)
@@ -38,27 +36,9 @@ if(DEFINED BUILD_DEFINES)
 	endforeach()
 endif()
 
-if(BUILD_SHARED_AND_STATIC_LIBS)
-	set(LIBRARY pugixml-static pugixml-shared)
-else()
-	set(LIBRARY pugixml)
-endif()
+set(LIBRARY pugixml-static)
 
-if(BUILD_SHARED_AND_STATIC_LIBS)
-    add_library(pugixml-static STATIC ${HEADERS} ${SOURCES})
-    add_library(pugixml-shared SHARED ${HEADERS} ${SOURCES})
-else()
-  if(BUILD_SHARED_LIBS)
-    add_library(pugixml SHARED ${HEADERS} ${SOURCES})
-  else()
-    add_library(pugixml STATIC ${HEADERS} ${SOURCES})
-  endif()
-endif()
-
-# Export symbols for shared library builds
-if(BUILD_SHARED_AND_STATIC_LIBS AND MSVC)
-	target_compile_definitions(pugixml-shared PRIVATE "PUGIXML_API=__declspec(dllexport)")
-endif()
+add_library(pugixml-static STATIC ${HEADERS} ${SOURCES})
 
 if(BUILD_SHARED_LIBS AND MSVC)
 	target_compile_definitions(pugixml PRIVATE "PUGIXML_API=__declspec(dllexport)")

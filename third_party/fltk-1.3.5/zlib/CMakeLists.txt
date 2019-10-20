@@ -28,7 +28,7 @@ install(FILES zconf.h;zlib.h;zutil.h
 #######################################################################
 if(OPTION_BUILD_SHARED_LIBS)
 #######################################################################
-FL_ADD_LIBRARY(fltk_z SHARED "${ZLIB_SRCS}")
+FL_ADD_LIBRARY(fltk_z STATIC "${ZLIB_SRCS}")
 
 #######################################################################
 endif(OPTION_BUILD_SHARED_LIBS)
