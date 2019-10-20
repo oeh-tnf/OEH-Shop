@@ -242,3 +242,10 @@ tags
 # End of https://www.gitignore.io/api/c++,vim,cmake,emacs,intellij,qtcreator
 
 build/
+/third_party/fltk-1.3.5/FL/abi-version.h
+/third_party/fltk-1.3.5/config.h
+/third_party/fltk-1.3.5/config.log
+/third_party/fltk-1.3.5/config.status
+/third_party/fltk-1.3.5/fltk-config
+/third_party/fltk-1.3.5/fltk.list
+/third_party/fltk-1.3.5/makeinclude

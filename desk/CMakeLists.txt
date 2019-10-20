@@ -1,5 +1,7 @@
 set(DESK_SRCS
-    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
+    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/user_table.cpp
+    )
 
 add_executable(print_desk ${DESK_SRCS})
 

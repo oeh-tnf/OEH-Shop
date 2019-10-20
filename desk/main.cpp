@@ -2,23 +2,17 @@
 
 #include <FL/Fl.H>
 #include <FL/Fl_Button.H>
+#include <FL/Fl_Input.H>
+#include <FL/Fl_Output.H>
 #include <FL/Fl_Window.H>
 #include <FL/fl_ask.H>
 
 #include <oehshop/finder.hpp>
 #include <oehshop/user_db.hpp>
 
+#include "user_table.hpp"
+
 bool running = true;
-
-void
-but_cb(Fl_Widget* o, void*)
-{
-  Fl_Button* b = (Fl_Button*)o;
-  b->label("Good job");// redraw not necessary
-
-  b->resize(10, 150, 140, 30);// redraw needed
-  b->redraw();
-}
 
 static void
 window_cb(Fl_Widget* widget, void*)
@@ -50,14 +44,37 @@ main(int argc, char* argv[])
 
   oehshop::UserDB userDB(argv[2]);
 
-  Fl_Window win(300, 200, "Testing");
+  const int windowWidth = 800;
+  const int windowHeight = 800;
+
+  Fl_Window win(windowWidth, windowHeight, "PrintingStation - Desk");
   win.begin();
-  Fl_Button but(10, 150, 70, 30, "Click me");
+
+  Fl_Output statusLabel(0, 50, 800, 50, "Status");
+  statusLabel.textsize(50);
+  statusLabel.show();
+
+  UserTable userTable(userDB, &statusLabel);
+  userDB.setView(&userTable);
+  userDB.refreshUsers();
+
+  Fl_Input userInput(0, 0, 800, 50, "User Input");
+  userInput.textsize(50);
+  userInput.callback(
+    [](Fl_Widget* w, void* p) {
+      Fl_Input* input = static_cast<Fl_Input*>(w);
+      UserTable* tbl = static_cast<UserTable*>(p);
+      tbl->startPayment(input->value());
+    },
+    static_cast<void*>(&userTable));
+  userInput.when(FL_WHEN_ENTER_KEY_ALWAYS);
+  userInput.show();
+
   win.end();
-  but.callback(but_cb);
   win.show();
 
   win.callback(window_cb);
+  win.resizable(userTable);
 
   oehshop::Finder finder;
   finder.provideDesk(argv[1]);

@@ -15,14 +15,16 @@ const char* createTableUsers = "CREATE TABLE users ("
                                "id INTEGER PRIMARY KEY,"
                                "username TEXT,"
                                "hostname TEXT,"
-                               "last_change DATETIME DEFAULT CURRENT_TIMESTAMP"
+                               "last_change DATETIME DEFAULT CURRENT_TIMESTAMP,"
+                               "bwPages INTEGER DEFAULT 0,"
+                               "clPages INTEGER DEFAULT 0"
                                ");";
 
 const char* createTablePrints = "CREATE TABLE prints ("
                                 "id INTEGER PRIMARY KEY,"
-                                "bwPages INTEGER,"
-                                "colorPages INTEGER,"
                                 "hostname TEXT,"
+                                "bwPages INTEGER,"
+                                "clPages INTEGER,"
                                 "last_change DATETIME DEFAULT CURRENT_TIMESTAMP"
                                 ");";
 
@@ -32,7 +34,12 @@ const char* insertUserIntoDB =
 
 const char* deleteUserFromDB = "DELETE FROM users WHERE username = ?;";
 const char* logPrintData =
-  "INSERT INTO prints (bwPages, colorPages, hostname) VALUES (?, ?, ?);";
+  "INSERT INTO prints (bwPages, clPages, hostname) VALUES (?, ?, ?);";
+
+const char* userAddPages = "UPDATE users SET bwPages = bwPages + ?, clPages = "
+                           "clPages + ? WHERE username = ?;";
+
+const char* allUsersInDB = "SELECT * FROM users;";
 
 namespace oehshop {
 void
@@ -42,11 +49,12 @@ fatal(const char* func, int rv)
             << std::endl;
 }
 
-UserDB::UserDB(const char* dbPath)
+UserDB::UserDB(const char* dbPath, UserView* view)
   : m_replyService(OEHSHOP_USER_PORT,
                    (ReplyService::MessageTypeProcessingFunc)
                      std::bind(&UserDB::processMessage, this, _1, _2, _3))
   , m_db(dbPath, SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE)
+  , m_userView(view)
 {
   // Initialise tables.
   if(!m_db.tableExists("users")) {
@@ -90,28 +98,111 @@ UserDB::login(const std::string& username, const std::string& hostname)
     }
   }
 
+  if(m_userView) {
+    m_userView->addUser(username, hostname);
+  }
+
   return { true, "" };
 }
+
 void
-UserDB::logout(const std::string& username,
-               const std::string& hostname,
-               Printer::PrinterStats stats)
+UserDB::refreshUsers()
 {
+  if(m_userView) {
+    m_userView->clear();
+  }
+
+  std::string username;
+  std::string hostname;
+  std::string timestamp;
+  int bwPages;
+  int clPages;
+  SQLite::Statement queryStmt(m_db, allUsersInDB);
+  // Should have exactly one result.
+  while(queryStmt.executeStep()) {
+    username = queryStmt.getColumn(1).getString();
+    hostname = queryStmt.getColumn(2).getString();
+    timestamp = queryStmt.getColumn(3).getString();
+    bwPages = queryStmt.getColumn(4).getInt();
+    clPages = queryStmt.getColumn(5).getInt();
+
+    if(m_userView) {
+      m_userView->addUser(username, hostname);
+      m_userView->updateUser(username, timestamp, "Loaded", bwPages, clPages);
+    }
+  }
+}
+
+void
+UserDB::removeUserFromDB(const std::string& username)
+{
+  std::string hostname = "";
+  int bwPages = 0;
+  int clPages = 0;
+
   {
-    SQLite::Statement logoutStmt(m_db, deleteUserFromDB);
-    logoutStmt.bind(1, username);
-    int res = logoutStmt.exec();
-    if(res != 1) {
-      std::cerr << "Could not logout user " << username << " from host "
-                << hostname << "!" << std::endl;
+    SQLite::Statement queryStmt(m_db, userInDB);
+    queryStmt.bind(1, username);
+    // Should have exactly one result.
+    while(queryStmt.executeStep()) {
+      hostname = queryStmt.getColumn(2).getString();
+      bwPages = queryStmt.getColumn(4).getInt();
+      clPages = queryStmt.getColumn(5).getInt();
+    }
+  }
+
+  SQLite::Statement logoutStmt(m_db, deleteUserFromDB);
+  logoutStmt.bind(1, username);
+  int res = logoutStmt.exec();
+  if(res != 1) {
+    std::cerr << "Could not logout user " << username << "!" << std::endl;
+  } else {
+    std::cout << "User successfully logged out and deleted! Page count: bw: "
+              << bwPages << ", cl: " << clPages << std::endl;
+    if(m_userView) {
+      m_userView->removeUser(username);
     }
   }
 
   {
     SQLite::Statement logStmt(m_db, logPrintData);
-    logStmt.bind(1, stats.bwPages);
-    logStmt.bind(2, stats.clPages);
+    logStmt.bind(1, bwPages);
+    logStmt.bind(2, clPages);
     logStmt.bind(3, hostname);
+    logStmt.exec();
+  }
+}
+
+void
+UserDB::addPagesToUser(const std::string& username, Printer::PrinterStats stats)
+{
+  SQLite::Statement stmt(m_db, userAddPages);
+  stmt.bind(1, stats.bwPages);
+  stmt.bind(2, stats.clPages);
+  stmt.bind(3, username);
+  stmt.exec();
+}
+
+void
+UserDB::logout(const std::string& username,
+               const std::string& hostname,
+               Printer::PrinterStats stats)
+{
+  addPagesToUser(username, stats);
+
+  if(m_userView) {
+    std::string timestamp = "";
+    int bwPages = 0;
+    int clPages = 0;
+    SQLite::Statement queryStmt(m_db, userInDB);
+    queryStmt.bind(1, username);
+    // Should have exactly one result.
+    while(queryStmt.executeStep()) {
+      timestamp = queryStmt.getColumn(3).getString();
+      bwPages = queryStmt.getColumn(4).getInt();
+      clPages = queryStmt.getColumn(5).getInt();
+    }
+    m_userView->updateUser(username, timestamp, "Logged Out", bwPages, clPages);
   }
 }
 

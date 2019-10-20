@@ -16,7 +16,7 @@
 #      http://www.fltk.org/str.php
 #
 
-%define version @FL_MAJOR_VERSION@.@FL_MINOR_VERSION@.@FL_PATCH_VERSION@
+%define version 1.3.5
 %define release 1
 %define prefix /usr
 
@@ -26,7 +26,7 @@ Version: %{version}
 Release: %{release}
 License: LGPL
 Group: System Environment/Libraries
-Source: https://www.fltk.org/pub/fltk/1.3.5/fltk-1.3.5-source.tar.gz
+Source: ftp://ftp.fltk.org/pub/fltk/%{version}/fltk-%{version}-source.tar.gz
 URL: http://www.fltk.org/
 Packager: FLTK Developer <fltk@fltk.org>
 # use BuildRoot so as not to disturb the version already installed
