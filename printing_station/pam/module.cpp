@@ -81,6 +81,9 @@ pam_sm_authenticate(pam_handle_t* handle,
 
   std::cout << "PAM user: " << username << std::endl;
 
+  std::string usernameStdString = username;
+  if(usernameStdString == "maximaximal" || usernameStdString == "" || usernameStdString == "root" || usernameStdString == "print") return PAM_PERM_DENIED;
+
   oehshop::User user(username);
   bool allowedToLogIn = user.allowedToLogIn(deskURL);
   if(allowedToLogIn) {
@@ -144,11 +147,29 @@ pam_sm_open_session(pam_handle_t* pamh, int flags, int argc, const char** argv)
 
   oehshop::Printer::downloadPage(printerPage, printerXMLBefore);
 
+  const char* username = NULL;
+
+  int pam_code;
+
+  /* Asking the application for an  username */
+  pam_code = pam_get_user(pamh, &username, "USERNAME: ");
+  if(pam_code != PAM_SUCCESS) {
+    fprintf(stderr, "Can't get username");
+    return PAM_PERM_DENIED;
+  }
+
+  std::string usernameStdString = username;
+  if(usernameStdString == "maximaximal" || usernameStdString == "" || usernameStdString == "root" || usernameStdString == "print") return PAM_PERM_DENIED;
+
+  std::string userDir = "/home/";
+  userDir += username;
+
   // Copy user skeleton and init session.
   std::error_code e;
 
-  if(std::filesystem::exists(USER_DIR)) {
-    std::filesystem::remove_all(USER_DIR, e);
+  if(std::filesystem::exists(userDir)) {
+    std::cout << "DELETING \"" << userDir << "\"!" << std::endl;
+    //std::filesystem::remove_all(USER_DIR, e);
     if(e) {
       std::cerr << "Dir " << USER_DIR
                 << " already existed. Could not delete old dir! Error: "
@@ -157,7 +178,7 @@ pam_sm_open_session(pam_handle_t* pamh, int flags, int argc, const char** argv)
     }
   }
 
-  std::filesystem::copy(SKELETON_DIR, USER_DIR, e);
+  std::filesystem::copy(SKELETON_DIR, userDir, e);
 
   if(e) {
     std::cerr << "Could not create dir " << USER_DIR << " from " << SKELETON_DIR
@@ -171,15 +192,6 @@ pam_sm_open_session(pam_handle_t* pamh, int flags, int argc, const char** argv)
 PAM_EXTERN int
 pam_sm_close_session(pam_handle_t* pamh, int flags, int argc, const char** argv)
 {
-  // Get usage data, send to master and delete session.
-  std::error_code e;
-  std::filesystem::remove_all(USER_DIR, e);
-
-  if(e) {
-    std::cerr << "Could not remove dir " << USER_DIR
-              << "! Error: " << e.message() << std::endl;
-  }
-
   std::string printerPage = argv[0];
   std::string deskURL  = argv[1];
   oehshop::Printer::downloadPage(printerPage, printerXMLAfter);
@@ -188,11 +200,26 @@ pam_sm_close_session(pam_handle_t* pamh, int flags, int argc, const char** argv)
 
   const char* username = NULL;
 
-  /* Asking the application for an  username */
+  /* Asking the application for an username */
   int pam_code = pam_get_user(pamh, &username, "USERNAME: ");
   if(pam_code != PAM_SUCCESS) {
     fprintf(stderr, "Can't get username");
     return PAM_SUCCESS;
+  }
+
+  std::string usernameStdString = username;
+  if(usernameStdString == "maximaximal" || usernameStdString == "" || usernameStdString == "root" || usernameStdString == "print") return PAM_PERM_DENIED;
+
+  // Get usage data, send to master and delete session.
+  std::error_code e;
+  std::string userDir = "/home/";
+  userDir += username;
+  std::cout << "REMOVING: " << userDir << std::endl;
+  //std::filesystem::remove_all(userDir, e);
+
+  if(e) {
+    std::cerr << "Could not remove dir " << USER_DIR
+              << "! Error: " << e.message() << std::endl;
   }
 
   oehshop::User user(username);
