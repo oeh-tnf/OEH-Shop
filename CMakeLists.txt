@@ -21,4 +21,6 @@ if(NOT (CMAKE_BUILD_TYPE MATCHES DEBUG))
 endif()
 
 # Desk is multiplatform
-add_subdirectory(desk)
+if(NOT ONLY_PRINTING)
+    add_subdirectory(desk)
+endif()

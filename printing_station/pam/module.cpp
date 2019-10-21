@@ -169,7 +169,7 @@ pam_sm_open_session(pam_handle_t* pamh, int flags, int argc, const char** argv)
 
   if(std::filesystem::exists(userDir)) {
     std::cout << "DELETING \"" << userDir << "\"!" << std::endl;
-    //std::filesystem::remove_all(USER_DIR, e);
+    std::filesystem::remove_all(USER_DIR, e);
     if(e) {
       std::cerr << "Dir " << USER_DIR
                 << " already existed. Could not delete old dir! Error: "
@@ -215,7 +215,7 @@ pam_sm_close_session(pam_handle_t* pamh, int flags, int argc, const char** argv)
   std::string userDir = "/home/";
   userDir += username;
   std::cout << "REMOVING: " << userDir << std::endl;
-  //std::filesystem::remove_all(userDir, e);
+  std::filesystem::remove_all(userDir, e);
 
   if(e) {
     std::cerr << "Could not remove dir " << USER_DIR
