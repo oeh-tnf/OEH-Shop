@@ -6,7 +6,7 @@ add_library(printingstation SHARED ${PAM_SRCS})
 
 set_property(TARGET printingstation PROPERTY CXX_STANDARD 17)
 
-target_link_libraries(printingstation pam pam_misc pamc pugixml-static oehshop)
+target_link_libraries(printingstation pam pam_misc pamc pugixml-static oehshop stdc++fs)
 set_property(TARGET printingstation PROPERTY POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_FLAGS "-fno-stack-protector")
 
