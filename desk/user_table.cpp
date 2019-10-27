@@ -151,7 +151,7 @@ UserTable::addUser(const std::string& username, const std::string& hostname)
 {
   User* u = getUser(username);
   if(!u) {
-    m_users.push_back(User{ username, hostname });
+    m_users.push_back(User(username, hostname));
   } else {
     u->hostname = hostname;
   }
@@ -183,7 +183,7 @@ void
 UserTable::removeUser(const std::string& username)
 {
   m_users.erase(
-    std::find_if(m_users.begin(), m_users.end(), [username](auto e) {
+    std::find_if(m_users.begin(), m_users.end(), [username](const User& e) {
       return e.username == username;
     }));
   update();
@@ -192,9 +192,10 @@ UserTable::removeUser(const std::string& username)
 UserTable::User*
 UserTable::getUser(const std::string& username)
 {
-  auto it = std::find_if(m_users.begin(), m_users.end(), [username](auto e) {
-    return e.username == username;
-  });
+  auto it =
+    std::find_if(m_users.begin(), m_users.end(), [username](const User& e) {
+      return e.username == username;
+    });
   if(it == m_users.end()) {
     return nullptr;
   }

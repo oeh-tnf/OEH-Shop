@@ -130,7 +130,6 @@ namespace PAM {
 			default:
 			case PAM_ABORT:
 			case PAM_AUTHINFO_UNAVAIL:
-				_end();
 				throw Exception(pam_handle, "pam_authenticate()", last_result);
 
 			case PAM_USER_UNKNOWN:

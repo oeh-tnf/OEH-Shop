@@ -1,5 +1,5 @@
 set (THEMES "themes/default")
 
-install(FILES slim.theme DESTINATION ${PKGDATADIR}/${THEMES})
-install(FILES panel.png DESTINATION ${PKGDATADIR}/${THEMES})
-install(FILES background.jpg DESTINATION ${PKGDATADIR}/${THEMES})
+install(FILES slim.theme DESTINATION /usr/share/slim/${THEMES})
+install(FILES panel.png DESTINATION /usr/share/slim/${THEMES})
+install(FILES background.jpg DESTINATION /usr/share/slim/${THEMES})

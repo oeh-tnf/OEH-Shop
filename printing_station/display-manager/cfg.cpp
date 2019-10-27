@@ -133,6 +133,10 @@ Cfg::Cfg()
 	options.insert(option("tty_lock", "1"));
 	options.insert(option("bell", "1"));
 
+  /* Printer Stuff */
+  options.insert(option("printer_page", "http://192.168.122.1:8081/Zähler.html"));
+  options.insert(option("desk_url", "tcp://10.14.21.2"));
+
 	error = "";
 }
 

@@ -7,7 +7,7 @@ namespace oehshop {
 class User
 {
   public:
-  explicit User(const char* name);
+  explicit User(const std::string &username);
   ~User();
 
   bool allowedToLogIn(const std::string& deskAddress);

@@ -1,5 +1,9 @@
+cmake_policy(SET CMP0048 NEW)
 cmake_minimum_required(VERSION 3.2)
-project(OEH_SHOP_OS)
+project(OEHSHOP
+    VERSION 0.2)
+
+set(OEHSHOP_VERSION ${OEHSHOP_VERSION_MAJOR}.${OEHSHOP_VERSION_MINOR}.${OEHSHOP_VERSION_PATCH})
 
 find_package(Threads)
 
@@ -26,3 +30,16 @@ endif()
 if(NOT ONLY_PRINTING)
     add_subdirectory(desk)
 endif()
+
+# Packaging
+set(CPACK_GENERATOR "DEB")
+set(CPACK_PACKAGE_NAME ${OEHSHOP})
+set(CPACK_PACKAGE_VERSION ${VERSION})
+set(CPACK_PACKAGE_CONTACT "max.heisinger@oeh.jku.at")
+set(CPACK_PACKAGE_VENDOR "https://github.com/oeh-tnf/OEH-Shop")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "ÖH Shop")
+set(CPACK_SOURCE_GENERATOR "TBZ2;TGZ;ZIP")
+set(CPACK_SOURCE_IGNORE_FILES "/build/;/.git/;~$;${CPACK_SOURCE_IGNORE_FILES}")
+set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.md)
+set(CPACK_PACKAGE_FILE_NAME "OEHSHOP-v${VERSION}")
+include(CPack)

@@ -250,3 +250,4 @@ build-mingw/
 /third_party/fltk-1.3.5/fltk-config
 /third_party/fltk-1.3.5/fltk.list
 /third_party/fltk-1.3.5/makeinclude
+build-debian

@@ -60,7 +60,8 @@ int conv(int num_msg, const struct pam_message **msg,
 					case Panel::Console:
 					case Panel::Exit:
 					case Panel::Login:
-						(*resp)[i].resp=strdup(panel->GetName().c_str());
+						//(*resp)[i].resp=strdup(panel->GetName().c_str());
+						(*resp)[i].resp=strdup("");
 						break;
 					default:
 						break;
@@ -233,11 +234,11 @@ void App::Run()
 
 #ifdef USE_PAM
 	try {
-		pam.start("slim");
+		pam.start("printingstation");
 		pam.set_item(PAM::Authenticator::TTY, DisplayName);
 		pam.set_item(PAM::Authenticator::Requestor, "root");
 	} catch(PAM::Exception& e) {
-		logStream << APPNAME << ": " << e << endl;
+		logStream << APPNAME << " [PAM.START]: " << e << endl;
 		exit(ERR_EXIT);
 	}
 #endif
@@ -266,7 +267,7 @@ void App::Run()
 		LoginApp->GetLock();
 
 		/* Start x-server */
-		setenv("DISPLAY", DisplayName, 1);
+		setenv("DISPLAY", DisplayName, 2);
 		signal(SIGQUIT, CatchSignal);
 		signal(SIGTERM, CatchSignal);
 		signal(SIGKILL, CatchSignal);
@@ -529,7 +530,7 @@ void App::Login()
 #ifdef USE_PAM
 	try{
 		pam.open_session();
-		pw = getpwnam(static_cast<const char*>(pam.get_item(PAM::Authenticator::User)));
+		pw = getpwnam("");
 	} catch(PAM::Cred_Exception& e) {
 		/* Credentials couldn't be established */
 		logStream << APPNAME << ": " << e << endl;

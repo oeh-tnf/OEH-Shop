@@ -14,6 +14,11 @@ class Printer
 
   struct PrinterStats
   {
+    PrinterStats() {}
+    PrinterStats(int32_t bw, int32_t cl)
+      : bwPages(bw)
+      , clPages(cl)
+    {}
     int32_t bwPages = -1;
     int32_t clPages = -1;
 

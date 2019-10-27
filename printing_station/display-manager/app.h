@@ -25,6 +25,8 @@
 #include "cfg.h"
 #include "image.h"
 
+#include <oehshop/client.hpp>
+
 #ifdef USE_PAM
 #include "PAM.h"
 #endif
@@ -83,6 +85,8 @@ private:
 	int ServerPID;
 	const char *DisplayName;
 	bool serverStarted;
+
+  oehshop::Client m_client;
 
 #ifdef USE_PAM
 	PAM::Authenticator pam;

@@ -13,8 +13,8 @@
 
 namespace oehshop {
 
-User::User(const char* name)
-  : m_username(name)
+User::User(const std::string &username)
+  : m_username(username.c_str())
 {
   char hostnameCStr[HOST_NAME_MAX];
   int result = gethostname(hostnameCStr, HOST_NAME_MAX);

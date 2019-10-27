@@ -22,11 +22,7 @@ set(SLIM_VERSION_PATCH "6")
 set(SLIM_VERSION "${SLIM_VERSION_MAJOR}.${SLIM_VERSION_MINOR}.${SLIM_VERSION_PATCH}")
 
 set(CMAKE_INSTALL_PREFIX "/usr/local" CACHE PATH "Installation Directory")
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(PKGDATADIR "${CMAKE_CURRENT_SOURCE_DIR}/")
-else()
-    set(PKGDATADIR "${CMAKE_INSTALL_PREFIX}/share/slim")
-endif()
+set(PKGDATADIR "/usr/share/slim")
 set(SYSCONFDIR "/etc")
 set(LIBDIR "/lib")
 set(MANDIR "${CMAKE_INSTALL_PREFIX}/share/man")
@@ -89,6 +85,13 @@ if(USE_CONSOLEKIT)
 endif(USE_CONSOLEKIT)
 
 add_executable(${PROJECT_NAME} ${slim_srcs})
+target_link_libraries(${PROJECT_NAME} oehshop)
+
+set_property(TARGET slim PROPERTY CXX_STANDARD 17)
+
+target_link_libraries(slim pam pam_misc pamc pugixml-static oehshop stdc++fs)
+set_property(TARGET slim PROPERTY POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_CXX_FLAGS "-fno-stack-protector")
 
 #Set the custom CMake module directory where our include/lib finders are
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")

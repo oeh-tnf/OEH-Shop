@@ -32,6 +32,10 @@ class UserTable
 
   struct User
   {
+    User(const std::string& username, const std::string& hostname)
+      : username(username)
+      , hostname(hostname)
+    {}
     ~User()
     {
       if(paymentWindow) {
