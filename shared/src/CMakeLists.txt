@@ -1,4 +1,5 @@
 set(OEHSHOP_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/client.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/message.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/printer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/user_db.cpp

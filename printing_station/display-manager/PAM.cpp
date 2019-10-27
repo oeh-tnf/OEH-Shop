@@ -256,7 +256,7 @@ namespace PAM {
 	void Authenticator::delenv(const std::string& key)
 	{
 		switch ((last_result = pam_putenv(pam_handle, key.c_str()))) {
-			default: 
+			default:
 			case PAM_PERM_DENIED:
 			case PAM_ABORT:
 			case PAM_BUF_ERR:

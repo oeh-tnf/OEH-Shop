@@ -49,8 +49,9 @@ Cfg::Cfg()
 	options.insert(option("focus_password","no"));
 	options.insert(option("auto_login","no"));
 	options.insert(option("current_theme","default"));
-	options.insert(option("lockfile","/var/run/slim.lock"));
-	options.insert(option("logfile","/var/log/slim.log"));
+  // Lockfiles for easier development.
+	options.insert(option("lockfile","slim.lock"));
+	options.insert(option("logfile","slim.log"));
 	options.insert(option("authfile","/var/run/slim.auth"));
 	options.insert(option("shutdown_msg","The system is halting..."));
 	options.insert(option("reboot_msg","The system is rebooting..."));

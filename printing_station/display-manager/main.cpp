@@ -12,12 +12,15 @@
 #include "app.h"
 #include "const.h"
 
+#include <iostream>
+
 App* LoginApp = 0;
 
 int main(int argc, char** argv)
 {
+  std::cout << "PrintingLogin starting." << std::endl;
 	LoginApp = new App(argc, argv);
 	LoginApp->Run();
+  std::cout << "PrintingLogin exit." << std::endl;
 	return 0;
 }
-

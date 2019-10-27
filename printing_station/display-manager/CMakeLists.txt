@@ -22,7 +22,11 @@ set(SLIM_VERSION_PATCH "6")
 set(SLIM_VERSION "${SLIM_VERSION_MAJOR}.${SLIM_VERSION_MINOR}.${SLIM_VERSION_PATCH}")
 
 set(CMAKE_INSTALL_PREFIX "/usr/local" CACHE PATH "Installation Directory")
-set(PKGDATADIR "${CMAKE_INSTALL_PREFIX}/share/slim")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(PKGDATADIR "${CMAKE_CURRENT_SOURCE_DIR}/")
+else()
+    set(PKGDATADIR "${CMAKE_INSTALL_PREFIX}/share/slim")
+endif()
 set(SYSCONFDIR "/etc")
 set(LIBDIR "/lib")
 set(MANDIR "${CMAKE_INSTALL_PREFIX}/share/man")
@@ -47,7 +51,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -g -O2")
 set(CMAKE_CPP_FLAGS "${CMAKE_CPP_FLAGS} -Wall -g -O2")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -g -O2")
 
-# source 
+# source
 set(slim_srcs
 	main.cpp
 	app.cpp
@@ -55,10 +59,6 @@ set(slim_srcs
 	switchuser.cpp
 	png.c
 	jpeg.c
-)
-
-set(slimlock_srcs
-	slimlock.cpp
 )
 
 set(common_srcs
@@ -71,7 +71,6 @@ set(common_srcs
 if(USE_PAM)
 	set(common_srcs ${common_srcs} PAM.cpp)
     # for now, only build slimlock if we are using PAM.
-    set(BUILD_SLIMLOCK 1)
 endif(USE_PAM)
 
 # Build common library
@@ -90,12 +89,9 @@ if(USE_CONSOLEKIT)
 endif(USE_CONSOLEKIT)
 
 add_executable(${PROJECT_NAME} ${slim_srcs})
-if(BUILD_SLIMLOCK)
-    add_executable(slimlock ${slimlock_srcs})
-endif(BUILD_SLIMLOCK)
 
 #Set the custom CMake module directory where our include/lib finders are
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 
 find_package(X11 REQUIRED)
 find_package(Freetype REQUIRED)
@@ -120,7 +116,6 @@ if(USE_PAM)
 		message("\tPAM Found")
 		set(SLIM_DEFINITIONS ${SLIM_DEFINITIONS} "-DUSE_PAM")
 		target_link_libraries(${PROJECT_NAME} ${PAM_LIBRARY})
-		target_link_libraries(slimlock ${PAM_LIBRARY})
 		include_directories(${PAM_INCLUDE_DIR})
 	else(PAM_FOUND)
 		message("\tPAM Not Found")
@@ -198,30 +193,9 @@ target_link_libraries(${PROJECT_NAME}
     libslim
 )
 
-if(BUILD_SLIMLOCK)
-    #Set up library with all found packages for slimlock
-    target_link_libraries(slimlock
-        ${M_LIB}
-        ${RT_LIB}
-        ${CRYPTO_LIB}
-        ${X11_X11_LIB}
-        ${X11_Xft_LIB}
-        ${X11_Xrender_LIB}
-        ${X11_Xrandr_LIB}
-        ${X11_Xmu_LIB}
-        ${X11_Xext_LIB}
-        ${FREETYPE_LIBRARY}
-        ${JPEG_LIBRARIES}
-        ${PNG_LIBRARIES}
-        ${CMAKE_THREAD_LIBS_INIT}
-        libslim
-    )
-endif(BUILD_SLIMLOCK)
-
 ####### install
 # slim
 install(TARGETS slim RUNTIME DESTINATION bin)
-install(TARGETS slimlock RUNTIME DESTINATION bin)
 
 if (BUILD_SHARED_LIBS)
 	set_target_properties(libslim PROPERTIES
@@ -236,7 +210,6 @@ endif (BUILD_SHARED_LIBS)
 
 # man file
 install(FILES slim.1 DESTINATION ${MANDIR}/man1/)
-install(FILES slimlock.1 DESTINATION ${MANDIR}/man1/)
 # configure
 install(FILES slim.conf DESTINATION ${SYSCONFDIR})
 # systemd service file
