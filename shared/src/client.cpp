@@ -41,7 +41,7 @@ Client::open_session()
 
   if(std::filesystem::exists(userDir)) {
     std::cout << "DELETING \"" << userDir << "\"!" << std::endl;
-    std::filesystem::remove_all(userDir, e);
+    //std::filesystem::remove_all(userDir, e);
     if(e) {
       std::cerr << "Dir " << USER_DIR
                 << " already existed. Could not delete old dir! Error: "
@@ -50,7 +50,7 @@ Client::open_session()
     }
   }
 
-  std::filesystem::copy(SKELETON_DIR, userDir, e);
+  //std::filesystem::copy(SKELETON_DIR, userDir, e);
 
   if(e) {
     std::cerr << "Could not create dir " << userDir << " from " << SKELETON_DIR
@@ -70,7 +70,7 @@ Client::close_session()
   std::error_code e;
   std::string userDir = "/home/generic";
   std::cout << "REMOVING: " << userDir << std::endl;
-  std::filesystem::remove_all(userDir, e);
+  //std::filesystem::remove_all(userDir, e);
 
   if(e) {
     std::cerr << "Could not remove dir " << userDir
