@@ -32,10 +32,16 @@
 #include <unistd.h>
 #include <utmp.h>
 
+#include <filesystem>
+
+#include <libevdev-1.0/libevdev/libevdev.h>
+
 /* name of this program (argv[0]) */
 static char* progname;
 /* on which tty line are we sitting? (e.g. tty1) */
 static char* tty;
+/* what is the input device of the card reader? */
+static char* hidevice = "";
 /* some information about this host */
 static struct utsname uts;
 /* the hostname */
@@ -67,6 +73,39 @@ static char* autologin = NULL;
 
 using std::cout;
 using std::endl;
+
+std::string
+getPathOfCardReader()
+{
+  struct libevdev* dev = NULL;
+  int fd;
+  int rc;
+
+  for(auto& p : std::filesystem::directory_iterator("/dev/input/")) {
+    std::string path = p.path().string();
+    if(path.find("event") != std::string::npos) {
+      fd = open(path.c_str(), O_RDONLY | O_NONBLOCK);
+      rc = libevdev_new_from_fd(fd, &dev);
+      if(rc < 0) {
+        fprintf(
+          stderr, "[ERROR] Failed to init libevdev (%s)\n", strerror(-rc));
+        exit(1);
+      }
+      std::string name = libevdev_get_name(dev);
+      if(name.find("card reader") != std::string::npos) {
+        std::cout << "[INFO] Found card reader with name \"" + name +
+                       "\" with path \"" + path + "\""
+                  << std::endl;
+        ;
+        return path;
+      }
+    }
+  }
+  std::cout << "[ERROR] Could not find a fitting card reader! Attach a correct "
+               "card reader or change software."
+            << std::endl;
+  return "";
+}
 
 /* error() - output error messages */
 static void
@@ -280,26 +319,106 @@ do_prompt(int showlogin)
   FILE* fd;
   int c;
 
-  if(nonewline == 0)
-    putchar('\n');
-  if(noissue == 0 && (fd = fopen("/etc/issue", "r"))) {
-    while((c = getc(fd)) != EOF) {
-      if(c == '\\')
-        output_special_char(getc(fd));
-      else
-        putchar(c);
-    }
-    fclose(fd);
-  }
-  if(nohostname == 0)
-    printf("%s ", hn);
-  if(showlogin)
-    printf("login: ");
+  // clang-format off
+  std::cout << "" << std::endl;
+  std::cout << "" << std::endl;
+  std::cout << "ÖH-Shop Printing Station, Host " << longhostname << std::endl;
+  std::cout << "  -> See https://github.com/oeh-tnf/OEH-Shop" << std::endl;
+  std::cout << "" << std::endl;
+  std::cout << "   (Start by touching the card reader with your compatible NFC card / JKU Card)" << std::endl;
+  std::cout << "   (Start durch Berühren des Kartenlesers mit geeigneter NFC Karte / JKU Card)" << std::endl;
+  std::cout << "" << std::endl;
+  // clang-format on
+
   fflush(stdout);
 }
 
+#define KEY_DOWN_CASE(KEY, RETURN) \
+  case KEY_##KEY:                  \
+    return RETURN
+
+static char
+switch_handle_key_down(const struct input_event& ev)
+{
+  if(ev.type == EV_KEY && ev.value == 0) {
+    switch(ev.code) {
+      KEY_DOWN_CASE(A, 'A');
+      KEY_DOWN_CASE(B, 'B');
+      KEY_DOWN_CASE(C, 'C');
+      KEY_DOWN_CASE(D, 'D');
+      KEY_DOWN_CASE(E, 'E');
+      KEY_DOWN_CASE(F, 'F');
+      KEY_DOWN_CASE(G, 'G');
+      KEY_DOWN_CASE(H, 'H');
+      KEY_DOWN_CASE(I, 'I');
+      KEY_DOWN_CASE(J, 'J');
+      KEY_DOWN_CASE(K, 'K');
+      KEY_DOWN_CASE(L, 'L');
+      KEY_DOWN_CASE(M, 'M');
+      KEY_DOWN_CASE(N, 'N');
+      KEY_DOWN_CASE(O, 'O');
+      KEY_DOWN_CASE(P, 'P');
+      KEY_DOWN_CASE(Q, 'Q');
+      KEY_DOWN_CASE(R, 'R');
+      KEY_DOWN_CASE(S, 'S');
+      KEY_DOWN_CASE(T, 'T');
+      KEY_DOWN_CASE(U, 'U');
+      KEY_DOWN_CASE(V, 'V');
+      KEY_DOWN_CASE(W, 'W');
+      KEY_DOWN_CASE(X, 'X');
+      KEY_DOWN_CASE(Y, 'Y');
+      KEY_DOWN_CASE(Z, 'Z');
+
+      KEY_DOWN_CASE(KP0, '0');
+      KEY_DOWN_CASE(KP1, '1');
+      KEY_DOWN_CASE(KP2, '2');
+      KEY_DOWN_CASE(KP3, '3');
+      KEY_DOWN_CASE(KP4, '4');
+      KEY_DOWN_CASE(KP5, '5');
+      KEY_DOWN_CASE(KP6, '6');
+      KEY_DOWN_CASE(KP7, '7');
+      KEY_DOWN_CASE(KP8, '8');
+      KEY_DOWN_CASE(KP9, '9');
+
+      KEY_DOWN_CASE(0, '0');
+      KEY_DOWN_CASE(1, '1');
+      KEY_DOWN_CASE(2, '2');
+      KEY_DOWN_CASE(3, '3');
+      KEY_DOWN_CASE(4, '4');
+      KEY_DOWN_CASE(5, '5');
+      KEY_DOWN_CASE(6, '6');
+      KEY_DOWN_CASE(7, '7');
+      KEY_DOWN_CASE(8, '8');
+      KEY_DOWN_CASE(9, '9');
+
+      KEY_DOWN_CASE(ENTER, '\n');
+    }
+  }
+  return ' ';
+}
+
+static int
+read_from_cardreader(unsigned char* c, struct libevdev* evDevice)
+{
+  int fd;
+  int rc = 1;
+  do {
+    struct input_event ev;
+    rc = libevdev_next_event(evDevice, LIBEVDEV_READ_FLAG_NORMAL, &ev);
+    if(rc == 0) {
+      if(ev.type == EV_KEY && ev.value == 0) {
+        char inp = switch_handle_key_down(ev);
+        if(inp != ' ') {
+          *c = inp;
+          return 1;
+        }
+      }
+    }
+  } while(rc == 1 || rc == 0 || rc == -EAGAIN);
+}
+
 static char*
-get_logname(void)
+get_logname(struct libevdev* evDevice)
 {
   static char logname[40];
   char* bp;
@@ -309,7 +428,7 @@ get_logname(void)
   for(*logname = 0; *logname == 0;) {
     do_prompt(1);
     for(bp = logname;;) {
-      if(read(0, &c, 1) < 1) {
+      if(read_from_cardreader(&c, evDevice) < 1) {
         if(errno == EINTR || errno == EIO || errno == ENOENT)
           exit(EXIT_SUCCESS);
         error("%s: read: %s", tty, strerror(errno));
@@ -331,34 +450,6 @@ get_logname(void)
   return logname;
 }
 
-static void
-usage(void)
-{
-  error("usage: '%s [--noclear] [--nonewline] [--noissue] "
-        "[--nohangup] [--nohostname] [--long-hostname] "
-        "[--loginprog=/bin/login] [--nice=10] [--delay=10] "
-        "[--chdir=/home] [--chroot=/chroot] [--autologin=user] "
-        "tty' with e.g. tty=tty1",
-        progname);
-}
-
-static struct option const long_options[] = {
-  { "autologin", required_argument, NULL, 'a' },
-  { "chdir", required_argument, NULL, 'w' },
-  { "chroot", required_argument, NULL, 'r' },
-  { "delay", required_argument, NULL, 'd' },
-  { "noclear", no_argument, &noclear, 1 },
-  { "nonewline", no_argument, &nonewline, 1 },
-  { "noissue", no_argument, &noissue, 1 },
-  { "nohangup", no_argument, &nohangup, 1 },
-  { "no-hostname", no_argument, &nohostname, 1 }, /* compat option */
-  { "nohostname", no_argument, &nohostname, 1 },
-  { "loginprog", required_argument, NULL, 'l' },
-  { "long-hostname", no_argument, &longhostname, 1 },
-  { "nice", required_argument, NULL, 'n' },
-  { 0, 0, 0, 0 }
-};
-
 int
 main(int argc, char** argv)
 {
@@ -379,27 +470,6 @@ main(int argc, char** argv)
   putenv("TERM=linux");
 #endif
 
-  while((c = getopt_long(argc, argv, "a:d:l:n:", long_options, (int*)0)) !=
-        EOF) {
-    switch(c) {
-      case 0:
-        break;
-      case 'a':
-        autologin = optarg;
-        break;
-      case 'd':
-        delay = atoi(optarg);
-        break;
-      case 'l':
-        loginprog = optarg;
-        break;
-      case 'n':
-        priority = atoi(optarg);
-        break;
-      default:
-        usage();
-    }
-  }
   if(longhostname == 0 && (s = strchr(hn, '.')))
     *s = '\0';
   tty = argv[optind];
@@ -419,16 +489,25 @@ main(int argc, char** argv)
               << std::endl;
   }
 
-  while((logname = get_logname()) == 0)
-    /* do nothing */;
+  // Find cardreader.
+  std::string cardreaderDevice = getPathOfCardReader();
+  struct libevdev* dev = NULL;
+  int fd;
+  int rc = 1;
+  fd = open(cardreaderDevice.c_str(), O_RDONLY | O_NONBLOCK);
+  rc = libevdev_new_from_fd(fd, &dev);
 
-  if(priority) {
-    errno = 0; /* see the nice(2) NOTES for why we do this */
-    if((nice(priority) == -1) && (errno != 0))
-      error("nice(): %s", strerror(errno));
+  if(rc < 0) {
+    fprintf(stderr, "[ERROR] Failed to init libevdev (%s)\n", strerror(-rc));
+    exit(1);
   }
 
-  execl(loginprog, loginprog, autologin ? "-f" : "--", logname, NULL);
+  while((logname = get_logname(dev)) == 0)
+    /* do nothing */;
+
+  std::cout << "Loginname: " << logname << std::endl;
+
+  execl(loginprog, loginprog, "--", logname, NULL);
   error("%s: can't exec %s: %s", tty, loginprog, strerror(errno));
   sleep(5);
   exit(EXIT_FAILURE);

@@ -45,7 +45,7 @@ const std::set<std::string> disallowed_users = { "maximaximal",
 bool
 isUserAllowed(const std::string& user)
 {
-  return disallowed_users.count(user) == 0 && user.length() > 8;
+  return disallowed_users.count(user) == 0 && user.length() >= 8;
 }
 
 std::string
