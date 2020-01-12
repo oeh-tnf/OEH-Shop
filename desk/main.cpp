@@ -34,14 +34,14 @@ main(int argc, char* argv[])
 {
   std::cout << "Starting Print Desk" << std::endl;
 
-  if(argc != 3) {
+  if(argc != 2) {
     std::cout
-      << "2 Arguments required: Reachable Address of this computer and DB path."
+      << "Argument required: DB path."
       << std::endl;
     return 1;
   }
 
-  oehshop::UserDB userDB(argv[2]);
+  oehshop::UserDB userDB(argv[1]);
 
   const int windowWidth = 800;
   const int windowHeight = 800;
