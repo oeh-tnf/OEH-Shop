@@ -89,7 +89,7 @@ getPathOfCardReader()
   for(auto& p : std::filesystem::directory_iterator("/dev/input/")) {
     std::string path = p.path().string();
     if(path.find("event") != std::string::npos) {
-      fd = open(path.c_str(), O_RDONLY | O_NONBLOCK);
+      fd = open(path.c_str(), O_RDONLY);
       rc = libevdev_new_from_fd(fd, &dev);
       if(rc < 0) {
         fprintf(
