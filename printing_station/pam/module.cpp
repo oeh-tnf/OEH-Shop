@@ -206,7 +206,7 @@ pam_sm_open_session(pam_handle_t* handle,
   if(config.production) {
     std::cout << " ->> (PROD) OPERATION FROM \"" << sourceDir << "\" TO \""
               << targetDir << "\"" << std::endl;
-    // std::filesystem::copy(sourceDir, targetDir);
+    std::filesystem::copy(sourceDir, targetDir);
   } else {
     std::cout << " ->> COPY OPERATION FROM \"" << sourceDir << "\" TO \""
               << targetDir << "\"" << std::endl;
@@ -251,7 +251,7 @@ pam_sm_close_session(pam_handle_t* handle,
   if(config.production) {
     std::cout << " ->> (PROD) REMOVE ALL OPERATION FOR \"" << dirToBeRemoved
               << "\"" << std::endl;
-    // std::filesystem::remove_all(dirToBeRemoved);
+    std::filesystem::remove_all(dirToBeRemoved);
   } else {
     std::cout << " ->> REMOVE ALL OPERATION FOR \"" << dirToBeRemoved << "\""
               << std::endl;
