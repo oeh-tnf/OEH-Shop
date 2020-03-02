@@ -536,7 +536,7 @@ main(int argc, char** argv)
   struct libevdev* dev = NULL;
   int fd;
   int rc = 1;
-  fd = open(cardreaderDevice.c_str(), O_RDONLY | O_NONBLOCK);
+  fd = open(cardreaderDevice.c_str(), O_RDONLY);
   rc = libevdev_new_from_fd(fd, &dev);
 
   if(rc < 0) {
