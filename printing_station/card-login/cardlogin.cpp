@@ -32,6 +32,9 @@
 #include <unistd.h>
 #include <utmp.h>
 
+#include <linux/vt.h>
+#include <sys/ioctl.h>
+
 #include <filesystem>
 
 #include <libevdev-1.0/libevdev/libevdev.h>
@@ -68,6 +71,8 @@ static int delay = 0;
 static int priority = 0;
 /* automatic login with this user */
 static char* autologin = NULL;
+
+static int vtno_of_this_process = 0;
 
 #include <iostream>
 
@@ -169,6 +174,12 @@ open_tty(void)
   struct sigaction sa, sa_old;
   char buf[40];
   int fd;
+
+  if(isdigit(tty[3])) {
+    vtno_of_this_process = tty[3] - '0';
+  } else {
+    std::cout << "[ERROR] COULD NOT PARSE TTY NUMBER!!" << std::endl;
+  }
 
   /* Reset permissions on the console device */
   if((strncmp(tty, "tty", 3) == 0) && (isdigit(tty[3]))) {
@@ -406,7 +417,12 @@ read_from_cardreader(unsigned char* c, struct libevdev* evDevice)
     struct input_event ev;
     rc = libevdev_next_event(evDevice, LIBEVDEV_READ_FLAG_NORMAL, &ev);
     if(rc == 0) {
-      if(ev.type == EV_KEY && ev.value == 0) {
+      int vtno = 0;
+      if((ioctl(fd, VT_OPENQRY, &vtno) < 0) || vtno == -1) {
+        return 0;
+      }
+
+      if(ev.type == EV_KEY && ev.value == 0 && vtno == vtno_of_this_process) {
         char inp = switch_handle_key_down(ev);
         if(inp != ' ') {
           *c = inp;
