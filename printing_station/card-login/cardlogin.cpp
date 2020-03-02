@@ -408,6 +408,36 @@ switch_handle_key_down(const struct input_event& ev)
   return ' ';
 }
 
+static short
+get_current_vtno()
+{
+  FILE* fp;
+  char out[1035];
+  short vtno = 0;
+
+  /* Open the command for reading. */
+  fp = popen("/usr/bin/fgconsole", "r");
+  if(fp == NULL) {
+    std::cout << "[ERROR] Could not run fgconsole command!" << std::endl;
+    exit(1);
+  }
+
+  /* Read the output a line at a time - output it. */
+  while(fgets(out, sizeof(out), fp) != NULL) {
+    if(!isdigit(out[0])) {
+      std::cout << "[ERROR] Returned value of fgconsole is not a digit!"
+                << std::endl;
+      exit(1);
+    }
+    vtno = out[0] - '0';
+  }
+
+  /* close */
+  pclose(fp);
+
+  return vtno;
+}
+
 static int
 read_from_cardreader(unsigned char* c, struct libevdev* evDevice)
 {
@@ -417,14 +447,8 @@ read_from_cardreader(unsigned char* c, struct libevdev* evDevice)
     struct input_event ev;
     rc = libevdev_next_event(evDevice, LIBEVDEV_READ_FLAG_NORMAL, &ev);
     if(rc == 0) {
-      struct vt_stat vtstat;
-      if(ioctl(fd, VT_GETSTATE, &vtstat)) {
-        std::cout << "[ERROR] Could not read current vt_stat!" << std::endl;
-        return 0;
-      }
-
       if(ev.type == EV_KEY && ev.value == 0 &&
-         vtstat.v_active == vtno_of_this_process) {
+         get_current_vtno() == vtno_of_this_process) {
         char inp = switch_handle_key_down(ev);
         if(inp != ' ') {
           *c = inp;
