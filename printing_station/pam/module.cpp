@@ -207,6 +207,11 @@ pam_sm_open_session(pam_handle_t* handle,
     std::cout << " ->> (PROD) OPERATION FROM \"" << sourceDir << "\" TO \""
               << targetDir << "\"" << std::endl;
     std::filesystem::copy(sourceDir, targetDir);
+
+    // Run CHOWN for complete user directory.
+    system((std::string("chown -R ") + config.mapUser + ":" + config.mapUser +
+            " " + targetDir)
+             .c_str());
   } else {
     std::cout << " ->> COPY OPERATION FROM \"" << sourceDir << "\" TO \""
               << targetDir << "\"" << std::endl;
